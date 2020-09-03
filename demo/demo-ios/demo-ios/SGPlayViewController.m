@@ -18,11 +18,11 @@
 @property (weak, nonatomic) IBOutlet UILabel *currentTimeLabel;
 @property (weak, nonatomic) IBOutlet UISlider *progressSilder;
 
-
-
 @end
 
-@implementation SGPlayViewController
+@implementation SGPlayViewController {
+    UIActivityIndicatorView *activityIndicator;
+}
 
 - (instancetype)init
 {
@@ -52,6 +52,12 @@
     self.player.videoRenderer.displayMode = self.videoItem.displayMode;
     [self.player replaceWithAsset:self.videoItem.asset];
     [self.player play];
+    
+    activityIndicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 32.0f, 32.0f)];
+    [activityIndicator setCenter:self.view.center];
+    [activityIndicator setActivityIndicatorViewStyle:UIActivityIndicatorViewStyleWhite];
+    [self.view addSubview:activityIndicator];
+    [activityIndicator startAnimating];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -82,11 +88,17 @@
             self.durationLabel.text = [self timeStringFromSeconds:CMTimeGetSeconds(time.duration)];
         }
     }
+    
+    if (state.loading & SGLoadingStateStalled) {
+        [activityIndicator startAnimating];
+    }
+    
     if (action & SGInfoActionState && state.player & SGPlayerStateReady) {
         if (state.playback & SGPlaybackStateFinished) {
             self.stateLabel.text = @"Finished";
         } else if (state.playback & SGPlaybackStatePlaying) {
             self.stateLabel.text = @"Playing";
+            [activityIndicator stopAnimating];
         } else {
             self.stateLabel.text = @"Paused";
         }
@@ -127,7 +139,7 @@
      @(SGLoadingStatePlaybale) : @"SGLoadingStatePlaybale",
     };
     
-    NSString *loading = [stateStrings objectForKey:@(state.player)] ? : @"Unknown";
+    NSString *loading = [stateStrings objectForKey:@(state.loading)] ? : @"Unknown";
     
     stateStrings = @{
      @(SGPlaybackStateNone) : @"SGPlaybackStateNone",
@@ -136,7 +148,7 @@
      @(SGPlaybackStateFinished) : @"SGPlaybackStateFinished",
     };
     
-    NSString *playBack = [stateStrings objectForKey:@(state.player)] ? : @"Unknown";
+    NSString *playBack = [stateStrings objectForKey:@(state.playback)] ? : @"Unknown";
     
     return [NSString stringWithFormat:@"%@/%@/%@", player, loading, playBack];
 }
