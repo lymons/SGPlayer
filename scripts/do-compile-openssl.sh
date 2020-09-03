@@ -91,7 +91,7 @@ if [ "$FF_PLATFORM" = "iOS" ]; then
     if [ "$FF_ARCH" = "i386" ]; then
         FF_BUILD_NAME="openssl-i386"
         FF_XCRUN_PLATFORM="iPhoneSimulator"
-        FF_XCRUN_OSVERSION="-mios-simulator-version-min=12.0"
+        FF_XCRUN_OSVERSION="-mios-simulator-version-min=8.0"
         OPENSSL_CFG_FLAGS="darwin-i386-cc no-asm $OPENSSL_CFG_FLAGS"
     elif [ "$FF_ARCH" = "x86_64" ]; then
         FF_BUILD_NAME="openssl-x86_64"
@@ -190,7 +190,7 @@ echo "\n--------------------"
 echo "[*] configurate openssl"
 echo "--------------------"
 
-#OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS $FF_XCODE_BITCODE"
+OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS $FF_XCODE_BITCODE -no-shared "
 OPENSSL_CFG_FLAGS="$OPENSSL_CFG_FLAGS --openssldir=$FF_BUILD_PREFIX --prefix=$FF_BUILD_PREFIX"
 
 # xcode configuration

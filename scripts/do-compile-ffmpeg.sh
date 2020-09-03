@@ -130,7 +130,7 @@ if [ "$FF_PLATFORM" = "iOS" ]; then
         FF_BUILD_NAME="ffmpeg-i386"
         FF_BUILD_NAME_OPENSSL=openssl-i386
         FF_XCRUN_PLATFORM="iPhoneSimulator"
-        FF_XCRUN_OSVERSION="-mios-simulator-version-min=12.0"
+        FF_XCRUN_OSVERSION="-mios-simulator-version-min=8.0"
         FFMPEG_CFG_FLAGS="$FFMPEG_CFG_FLAGS $FFMPEG_CFG_FLAGS_INTEL"
     elif [ "$FF_ARCH" = "x86_64" ]; then
         FF_BUILD_NAME="ffmpeg-x86_64"
