@@ -18,6 +18,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *currentTimeLabel;
 @property (weak, nonatomic) IBOutlet UISlider *progressSilder;
 
+
+
 @end
 
 @implementation SGPlayViewController
@@ -40,10 +42,28 @@
 {
     [super viewDidLoad];
     
+    __weak SGPlayViewController * weakSelf = self;
+    self.player.readyHandler = ^(SGPlayer * _Nonnull player) {
+        [weakSelf prepareDone:player];
+    };
+    self.stateLabel.text = @"Preparing";
+    
     self.player.videoRenderer.view = self.view;
     self.player.videoRenderer.displayMode = self.videoItem.displayMode;
     [self.player replaceWithAsset:self.videoItem.asset];
     [self.player play];
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    [self.player stop];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    
+    NSLog(@"Memory NOT ENOUGH!!!");
 }
 
 #pragma mark - SGPlayer Notifications
@@ -62,7 +82,7 @@
             self.durationLabel.text = [self timeStringFromSeconds:CMTimeGetSeconds(time.duration)];
         }
     }
-    if (action & SGInfoActionState) {
+    if (action & SGInfoActionState && state.player & SGPlayerStateReady) {
         if (state.playback & SGPlaybackStateFinished) {
             self.stateLabel.text = @"Finished";
         } else if (state.playback & SGPlaybackStatePlaying) {
@@ -71,9 +91,66 @@
             self.stateLabel.text = @"Paused";
         }
     }
+    
+    NSLog(@"Action: %@; State: %@", [self stringOfAction: action], [self stringOfState: state]);
+}
+
+#pragma Utils
+
+- (NSString *)stringOfAction: (SGInfoAction)action {
+    NSDictionary *stateStrings = @{
+       @(SGInfoActionNone) : @"SGInfoActionNone",
+       @(SGInfoActionTime) : @"SGInfoActionTime",
+       @(SGInfoActionTimeCached) : @"SGInfoActionTimeCached",
+       @(SGInfoActionStatePlayer) : @"SGInfoActionStatePlayer",
+       @(SGInfoActionStateLoading) : @"SGInfoActionStateLoading",
+       @(SGInfoActionTimeDuration) : @"SGInfoActionTimeDuration",
+       @(SGInfoActionTimePlayback) : @"SGInfoActionTimePlayback",
+      };
+    return [stateStrings objectForKey:@(action)] ? : @"Unknown";
+}
+
+- (NSString *)stringOfState: (SGStateInfo)state {
+    NSDictionary *stateStrings = @{
+     @(SGPlayerStateNone) : @"SGPlayerStateNone",
+     @(SGPlayerStateReady) : @"SGPlayerStateReady",
+     @(SGPlayerStateFailed) : @"SGPlayerStateFailed",
+     @(SGPlayerStatePreparing) : @"SGPlayerStatePreparing",
+    };
+    
+    NSString *player = [stateStrings objectForKey:@(state.player)] ? : @"Unknown";
+    
+    stateStrings = @{
+     @(SGLoadingStateNone) : @"SGLoadingStateNone",
+     @(SGLoadingStateStalled) : @"SGLoadingStateStalled",
+     @(SGLoadingStateFinished) : @"SGLoadingStateFinished",
+     @(SGLoadingStatePlaybale) : @"SGLoadingStatePlaybale",
+    };
+    
+    NSString *loading = [stateStrings objectForKey:@(state.player)] ? : @"Unknown";
+    
+    stateStrings = @{
+     @(SGPlaybackStateNone) : @"SGPlaybackStateNone",
+     @(SGPlaybackStatePlaying) : @"SGPlaybackStatePlaying",
+     @(SGPlaybackStateSeeking) : @"SGPlaybackStateSeeking",
+     @(SGPlaybackStateFinished) : @"SGPlaybackStateFinished",
+    };
+    
+    NSString *playBack = [stateStrings objectForKey:@(state.player)] ? : @"Unknown";
+    
+    return [NSString stringWithFormat:@"%@/%@/%@", player, loading, playBack];
 }
 
 #pragma mark - Actions
+
+- (void)prepareDone:(SGPlayer *)player
+{
+    // Becasuse this method will be call by background thread,
+    // so UI updating must be used by main thread block.
+    // self.stateLabel.text = @"Ready";
+    
+    NSLog(@"ready for play");
+}
 
 - (IBAction)back:(id)sender
 {

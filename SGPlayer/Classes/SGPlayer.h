@@ -174,6 +174,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)play;
 
 /*!
+@method stop
+@abstract
+   Stop video play and release memory.
+*/
+- (BOOL)stop;
+
+/*!
  @method pause
  @abstract
     Signals the desire to pause playback.
