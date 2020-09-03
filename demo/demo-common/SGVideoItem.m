@@ -15,7 +15,31 @@
     NSURL *i_see_fire = [[NSBundle mainBundle] URLForResource:@"i-see-fire" withExtension:@"mp4"];
     NSURL *google_help_vr = [[NSBundle mainBundle] URLForResource:@"google-help-vr" withExtension:@"mp4"];
     
-    NSMutableArray *items = [NSMutableArray arrayWithCapacity:8];
+    NSMutableArray *items = [NSMutableArray arrayWithCapacity:11];
+    {
+        NSURL *url = [[NSURL alloc] initWithString:@"rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"];
+        SGVideoItem *item = [[SGVideoItem alloc] init];
+        item.name = @"RSTP + H264: BigBuckBunny_115k";
+        item.asset = [SGAsset assetWithURL:url];
+        item.displayMode = SGDisplayModePlane;
+        [items addObject:item];
+    }
+    {
+        NSURL *url = [[NSURL alloc] initWithString:@"rtsp://192.168.10.235/videodevice"];
+        SGVideoItem *item = [[SGVideoItem alloc] init];
+        item.name = @"RSTP + H265: IPCamera";
+        item.asset = [SGAsset assetWithURL:url];
+        item.displayMode = SGDisplayModePlane;
+        [items addObject:item];
+    }
+    {
+        NSURL *url = [[NSURL alloc] initWithString:@"rtsp://192.168.10.235/test.mp4&t=unicast&p=rtsp&ve=H265&w=1280&h=720"];
+        SGVideoItem *item = [[SGVideoItem alloc] init];
+        item.name = @"RSTP + H265: IPCamera unicast 1280x720";
+        item.asset = [SGAsset assetWithURL:url];
+        item.displayMode = SGDisplayModePlane;
+        [items addObject:item];
+    }
     {
         SGVideoItem *item = [[SGVideoItem alloc] init];
         item.name = @"I See Fire";
@@ -109,7 +133,7 @@
         }
         
         SGVideoItem *item = [[SGVideoItem alloc] init];
-        item.name = @"I See Fire + Google Help";
+        item.name = @"I See Fire + Google Help (Crashing)";
         item.asset = asset;
         item.displayMode = SGDisplayModePlane;
         [items addObject:item];
