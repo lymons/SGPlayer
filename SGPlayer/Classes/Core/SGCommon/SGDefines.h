@@ -17,6 +17,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#define CACHE_FRAMES_VIDEO  72
+#define CACHE_FRAMES_AUDIO  192
+#define QUEUE_FRAMES_VIDEO  CACHE_FRAMES_VIDEO*3
+#define QUEUE_FRAMES_AUDIO  CACHE_FRAMES_AUDIO*3
+#define BUFFER_FRAMES_MAX   50000
+#define BUFFER_VOLUME_MAX   (25*1024*1024)          // 25MB
+
 typedef NS_ENUM(NSUInteger, SGMediaType) {
     SGMediaTypeUnknown  = 0,
     SGMediaTypeAudio    = 1,
@@ -36,6 +43,7 @@ typedef NS_OPTIONS(NSUInteger, SGPlaybackState) {
     SGPlaybackStatePlaying  = 1 << 0,
     SGPlaybackStateSeeking  = 1 << 1,
     SGPlaybackStateFinished = 1 << 2,
+    SGPlaybackStateCaching  = 1 << 3,
 };
 
 typedef NS_ENUM(NSUInteger, SGLoadingState) {
@@ -55,6 +63,7 @@ typedef NS_OPTIONS(NSUInteger, SGInfoAction) {
     SGInfoActionStateLoading  = 1 << 5,
     SGInfoActionStatePlayback = 1 << 6,
     SGInfoActionState         = SGInfoActionStatePlayer | SGInfoActionStateLoading | SGInfoActionStatePlayback,
+    SGInfoActionPlayerCaching = 1 << 7,
 };
 
 typedef struct {

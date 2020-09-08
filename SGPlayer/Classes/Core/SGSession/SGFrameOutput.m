@@ -385,7 +385,8 @@ SGSet11Map(void, setDemuxerOptions, setOptions, SGDemuxerOptions *, self->_packe
             finished = [self setState:SGFrameOutputStateFinished];
         }
         return ^{
-            if (enough || (size > 15 * 1024 * 1024)) {
+            if (enough || (size > BUFFER_VOLUME_MAX)) {
+                NSLog(@"Pause packet receiving because buffer hit max limit(video frames: %d, video size: %d, audio frames: %d, audio size: %d).", vc.count, vc.size, ac.count, ac.size);
                 [self->_packetOutput pause];
             } else {
                 [self->_packetOutput resume];

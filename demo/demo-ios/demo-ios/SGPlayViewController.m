@@ -118,6 +118,7 @@
        @(SGInfoActionStateLoading) : @"SGInfoActionStateLoading",
        @(SGInfoActionTimeDuration) : @"SGInfoActionTimeDuration",
        @(SGInfoActionTimePlayback) : @"SGInfoActionTimePlayback",
+       @(SGInfoActionPlayerCaching) : @"SGInfoActionPlayerCaching",
       };
     return [stateStrings objectForKey:@(action)] ? : @"Unknown";
 }
@@ -146,6 +147,7 @@
      @(SGPlaybackStatePlaying) : @"SGPlaybackStatePlaying",
      @(SGPlaybackStateSeeking) : @"SGPlaybackStateSeeking",
      @(SGPlaybackStateFinished) : @"SGPlaybackStateFinished",
+     @(SGPlaybackStateCaching) : @"SGPlaybackStateCaching",
     };
     
     NSString *playBack = [stateStrings objectForKey:@(state.playback)] ? : @"Unknown";

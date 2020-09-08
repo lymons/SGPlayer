@@ -28,6 +28,7 @@ NSNotificationName const SGPlayerDidChangeInfoNotification = @"SGPlayerDidChange
 {
     struct {
         BOOL playing;
+        BOOL caching;
         BOOL audioFinished;
         BOOL videoFinished;
         BOOL audioAvailable;
@@ -120,6 +121,9 @@ NSNotificationName const SGPlayerDidChangeInfoNotification = @"SGPlayerDidChange
     if (self->_flags.playing) {
         state |= SGPlaybackStatePlaying;
     }
+    if (*action & SGInfoActionPlayerCaching) {
+        state |= SGPlaybackStateCaching;
+    }
     if (self->_flags.seekingIndex > 0) {
         state |= SGPlaybackStateSeeking;
     }
@@ -150,6 +154,10 @@ NSNotificationName const SGPlayerDidChangeInfoNotification = @"SGPlayerDidChange
             [self->_audioRenderer resume];
             [self->_videoRenderer resume];
         };
+    } else if (state & SGPlaybackStateCaching) {
+        b1 = ^{
+            [self->_clock pause];
+        };
     } else {
         b1 = ^{
             [self->_clock pause];
@@ -162,12 +170,25 @@ NSNotificationName const SGPlayerDidChangeInfoNotification = @"SGPlayerDidChange
 
 - (SGBlock)setLoadingState:(SGLoadingState)state action:(SGInfoAction *)action
 {
+    SGBlock block = ^{
+        if (state == SGLoadingStateStalled) {
+            if (self->_flags.playing) {
+                [self caching];
+            }
+        } else if (state != SGLoadingStateNone) {
+            BOOL caching = self.currentItem.isNeedToCachingVideo || self.currentItem.isNeedToCachingAudio;
+            if (self->_flags.caching && !caching) {
+                [self play];
+            }
+        }
+    };
+    
     if (self->_flags.stateInfo.loading == state) {
-        return ^{};
+        return block;
     }
     *action |= SGInfoActionStateLoading;
     self->_flags.stateInfo.loading = state;
-    return ^{};
+    return block;
 }
 
 - (void)setPlaybackTime:(CMTime)time action:(SGInfoAction *)action
@@ -336,6 +357,7 @@ NSNotificationName const SGPlayerDidChangeInfoNotification = @"SGPlayerDidChange
         self->_currentItem = nil;
         self->_flags.error = nil;
         self->_flags.playing = NO;
+        self->_flags.caching = NO;
         self->_flags.seekingIndex = 0;
         self->_flags.audioFinished = NO;
         self->_flags.videoFinished = NO;
@@ -368,30 +390,44 @@ NSNotificationName const SGPlayerDidChangeInfoNotification = @"SGPlayerDidChange
 
 - (BOOL)play
 {
-    self->_wantsToPlay = YES;
-    [SGActivity addTarget:self];
-    return SGLockCondEXE10(self->_lock, ^BOOL {
-        return self->_flags.stateInfo.player == SGPlayerStateReady;
-    }, ^SGBlock {
-        self->_flags.playing = YES;
-        SGInfoAction action = SGInfoActionNone;
-        SGBlock b1 = [self setPlaybackState:&action];
-        SGBlock b2 = [self infoCallback:action];
-        return ^{b1(); b2();};
-    });
+    NSLog(@"Start to playing");
+    self->_flags.caching = NO;
+    return [self updateState:YES];
 }
 
 - (BOOL)pause
 {
-    self->_wantsToPlay = NO;
-    [SGActivity removeTarget:self];
+    return [self updateState:NO];
+}
+
+- (BOOL)caching
+{
+    NSLog(@"Start to caching");
+    self->_flags.caching = YES;
+    return [self updateState:NO action:SGInfoActionPlayerCaching];
+}
+
+- (BOOL)updateState:(BOOL)playing
+{
+    return [self updateState:playing action:SGInfoActionNone];
+}
+
+- (BOOL)updateState:(BOOL)playing action:(SGInfoAction)action
+{
+    self->_wantsToPlay = playing;
+    if (playing) {
+        [SGActivity addTarget:self];
+    } else {
+        [SGActivity removeTarget:self];
+    }
+    
     return SGLockCondEXE10(self->_lock, ^BOOL {
         return self->_flags.stateInfo.player == SGPlayerStateReady;
     }, ^SGBlock {
-        self->_flags.playing = NO;
-        SGInfoAction action = SGInfoActionNone;
-        SGBlock b1 = [self setPlaybackState:&action];
-        SGBlock b2 = [self infoCallback:action];
+        self->_flags.playing = playing;
+        SGInfoAction act = action;
+        SGBlock b1 = [self setPlaybackState:&act];
+        SGBlock b2 = [self infoCallback:act];
         return ^{b1(); b2();};
     });
 }

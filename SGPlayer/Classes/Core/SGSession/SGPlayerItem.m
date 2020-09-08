@@ -271,6 +271,11 @@ SGSet1Map(void, setDecoderOptions, SGDecoderOptions *, self->_frameOutput)
         uint64_t discarded = 0;
         BOOL success = [self->_audioQueue getObjectAsync:&ret timeReader:timeReader discarded:&discarded];
         if (success || discarded) {
+            if (discarded > 0) {
+                NSLog(@"Drop %llu AUDIO frames", discarded);
+            } else if (!ret) {
+                NSLog(@"Cannot get AUDIO frame from Queue.");
+            }
             return [self setFrameQueueCapacity:SGMediaTypeAudio];
         };
         return nil;
@@ -285,11 +290,39 @@ SGSet1Map(void, setDecoderOptions, SGDecoderOptions *, self->_frameOutput)
         uint64_t discarded = 0;
         BOOL success = [self->_videoQueue getObjectAsync:&ret timeReader:timeReader discarded:&discarded];
         if (success || discarded) {
+            if (discarded > 0) {
+                NSLog(@"Drop %llu VIDEO frames", discarded);
+            } else if (!ret) {
+                NSLog(@"Cannot get VIDEO frame from Queue.");
+            }
             return [self setFrameQueueCapacity:SGMediaTypeVideo];
         };
+        
         return nil;
     });
     return ret;
+}
+
+#pragma mark - Caching
+
+- (BOOL)isNeedToCachingVideo
+{
+    return _videoQueue.capacity.count < CACHE_FRAMES_VIDEO;
+}
+
+- (BOOL)isNeedToCachingAudio
+{
+    return _audioQueue.capacity.count < CACHE_FRAMES_AUDIO;
+}
+
+- (int)videoFramesInCache
+{
+    return _videoQueue.capacity.count;
+}
+
+- (int)audioFramesInCache
+{
+    return _audioQueue.capacity.count;
 }
 
 #pragma mark - SGFrameOutputDelegate
@@ -427,12 +460,13 @@ SGSet1Map(void, setDecoderOptions, SGDecoderOptions *, self->_frameOutput)
 {
     BOOL paused = NO;
     if (type == SGMediaTypeAudio) {
-        paused = _audioQueue.capacity.count > 5;
+        paused = _audioQueue.capacity.count > QUEUE_FRAMES_AUDIO;
     } else if (type == SGMediaTypeVideo) {
-        paused = _videoQueue.capacity.count > 3;
+        paused = _videoQueue.capacity.count > QUEUE_FRAMES_VIDEO;
     }
     SGBlock b1 = ^{
         if (paused) {
+            NSLog(@"Pause decoding because queue hit max limit(video frames: %d, audio frames: %d).", self->_videoQueue.capacity.count, self->_audioQueue.capacity.count);
             [self->_frameOutput pause:type];
         } else {
             [self->_frameOutput resume:type];

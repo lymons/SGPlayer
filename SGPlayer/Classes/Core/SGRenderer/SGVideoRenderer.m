@@ -314,7 +314,7 @@
             return ^{
                 currentMediaTime = CACurrentMediaTime();
                 *desire = self->_clock.currentTime;
-                *drop = YES;
+                *drop = NO; // Todo. need to add a feature that drop frames on live mode
             };
         });
     }];

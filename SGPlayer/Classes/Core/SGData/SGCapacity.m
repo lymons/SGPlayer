@@ -7,6 +7,7 @@
 //
 
 #import "SGCapacity.h"
+#import "SGDefines.h"
 
 SGCapacity SGCapacityCreate(void)
 {
@@ -82,7 +83,7 @@ BOOL SGCapacityIsEnough(SGCapacity c1)
     CMTimeCompare(c1.duration, CMTimeMake(1, 1)) > 0;
      */
     return
-    c1.count >= 50000;
+    c1.count >= BUFFER_FRAMES_MAX;
 }
 
 BOOL SGCapacityIsEmpty(SGCapacity c1)

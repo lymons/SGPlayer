@@ -81,6 +81,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)setVideoSelection:(nullable SGTrackSelection *)videoSelection action:(SGTrackSelectionAction)action;
 
+- (BOOL)isNeedToCachingVideo;
+
+- (BOOL)isNeedToCachingAudio;
+
+- (int)videoFramesInCache;
+
+- (int)audioFramesInCache;
+
 @end
 
 NS_ASSUME_NONNULL_END
