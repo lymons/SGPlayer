@@ -309,12 +309,13 @@
         SGStrongify(self);
         return SGLockCondEXE10(self->_lock, ^BOOL {
             framesFetched = self->_flags.framesFetched;
-            return self->_currentFrame && framesFetched != 0;
+            // Drop past frames on live mode.
+            return self->_currentFrame && framesFetched != 0 && self.liveMode;
         }, ^SGBlock {
             return ^{
                 currentMediaTime = CACurrentMediaTime();
                 *desire = self->_clock.currentTime;
-                *drop = NO; // Todo. need to add a feature that drop frames on live mode
+                *drop = YES;
             };
         });
     }];

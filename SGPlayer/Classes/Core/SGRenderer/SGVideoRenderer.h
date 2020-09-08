@@ -103,6 +103,8 @@ typedef NS_ENUM(NSUInteger, SGScalingMode) {
  */
 @property (nonatomic) SGDisplayMode displayMode;
 
+@property (nonatomic) BOOL liveMode;
+
 /*!
  @method currentImage
  @abstract

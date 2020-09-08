@@ -21,4 +21,6 @@
  */
 @property (NS_NONATOMIC_IOSONLY, copy, nullable) NSDictionary<NSString*,id> *options;
 
+- (void)setTcpOptions;
+
 @end

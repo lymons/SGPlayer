@@ -13,6 +13,8 @@
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) SGAsset *asset;
 @property (nonatomic) SGDisplayMode displayMode;
+@property (nonatomic) BOOL liveMode;
+@property (nonatomic) BOOL tcpMode;             // IP Camera using TCP socket.
 
 + (NSArray<SGVideoItem *> *)videoItems;
 

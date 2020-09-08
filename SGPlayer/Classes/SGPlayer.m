@@ -171,6 +171,11 @@ NSNotificationName const SGPlayerDidChangeInfoNotification = @"SGPlayerDidChange
 - (SGBlock)setLoadingState:(SGLoadingState)state action:(SGInfoAction *)action
 {
     SGBlock block = ^{
+        if (self.videoRenderer.liveMode) {
+            // Caching is unnecessary on live mode.
+            return;
+        }
+        
         if (state == SGLoadingStateStalled) {
             if (self->_flags.playing) {
                 [self caching];

@@ -30,6 +30,7 @@
         item.name = @"RSTP + H265: IPCamera";
         item.asset = [SGAsset assetWithURL:url];
         item.displayMode = SGDisplayModePlane;
+        item.liveMode = YES;
         [items addObject:item];
     }
     {

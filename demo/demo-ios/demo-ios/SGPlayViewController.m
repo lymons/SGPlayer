@@ -13,6 +13,8 @@
 @property (nonatomic, assign) BOOL seeking;
 @property (nonatomic, strong) SGPlayer *player;
 
+@property (weak, nonatomic) IBOutlet UIButton *playButton;
+@property (weak, nonatomic) IBOutlet UIButton *pauseButton;
 @property (weak, nonatomic) IBOutlet UILabel *stateLabel;
 @property (weak, nonatomic) IBOutlet UILabel *durationLabel;
 @property (weak, nonatomic) IBOutlet UILabel *currentTimeLabel;
@@ -50,8 +52,21 @@
     
     self.player.videoRenderer.view = self.view;
     self.player.videoRenderer.displayMode = self.videoItem.displayMode;
+    self.player.videoRenderer.liveMode = self.videoItem.liveMode;
+    if (self.videoItem.tcpMode) {
+        [self.player.options.demuxer setTcpOptions];
+    }
+    
     [self.player replaceWithAsset:self.videoItem.asset];
     [self.player play];
+    
+    if (self.videoItem.liveMode) {
+        self.currentTimeLabel.hidden = YES;
+        self.progressSilder.hidden = YES;
+        self.durationLabel.hidden = YES;
+        self.playButton.hidden = YES;
+        self.pauseButton.hidden = YES;
+    }
     
     activityIndicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 32.0f, 32.0f)];
     [activityIndicator setCenter:self.view.center];
