@@ -48,7 +48,7 @@ typedef NS_OPTIONS(NSUInteger, SGPlaybackState) {
 
 typedef NS_ENUM(NSUInteger, SGLoadingState) {
     SGLoadingStateNone     = 0,
-    SGLoadingStatePlaybale = 1,
+    SGLoadingStatePlayable = 1,
     SGLoadingStateStalled  = 2,
     SGLoadingStateFinished = 3,
 };

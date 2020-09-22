@@ -152,7 +152,7 @@
      @(SGLoadingStateNone) : @"SGLoadingStateNone",
      @(SGLoadingStateStalled) : @"SGLoadingStateStalled",
      @(SGLoadingStateFinished) : @"SGLoadingStateFinished",
-     @(SGLoadingStatePlaybale) : @"SGLoadingStatePlaybale",
+     @(SGLoadingStatePlayable) : @"SGLoadingStatePlayable",
     };
     
     NSString *loading = [stateStrings objectForKey:@(state.loading)] ? : @"Unknown";
